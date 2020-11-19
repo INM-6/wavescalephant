@@ -31,6 +31,13 @@ PLOT_TSTOP = config["PLOT_TSTOP"]
 PLOT_CHANNELS = parse_plot_channels(config["PLOT_CHANNELS"], STAGE_INPUT)
 PLOT_FORMAT = config["PLOT_FORMAT"]
 
+if config["DETECTION_BLOCK"] == "WaveHunt_Clustering":
+    BLOCK_ORDER = ["clustering", "optical_flow", "critical_points", "critical_points_clustering", "merge_wave_definitions"]
+
+elif config["DETECTION_BLOCK"] == "WaveHunt_Time":
+    BLOCK_ORDER = ["WaveHunt_Cropped"]
+
+
 METRIC = config["METRIC"]
 TIME_SPACE_RATIO = config["TIME_SPACE_RATIO"]
 NEIGHBOUR_DISTANCE = config["NEIGHBOUR_DISTANCE"]
@@ -43,16 +50,44 @@ GAUSSIAN_SIGMA = config["GAUSSIAN_SIGMA"]
 DERIVATIVE_FILTER = config["DERIVATIVE_FILTER"]
 DETECT_CRITICAL_POINTS = config["DETECT_CRITICAL_POINTS"]
 
-localrules: all, check_input
+
+MAX_ABS_TIMELAG = config["MAX_ABS_TIMELAG"]
+ACCEPTABLE_REJECTION_RATE = config["ACCEPTABLE_REJECTION_RATE"]
+MIN_CH_NUM = config["MIN_CH_NUM"]
+
+
+#localrules: all, check_input
 
 #### Housekeeping ####
+
+wildcard_constraints:
+    rule_name = '\w+'
+
+def locate(str_list, string):
+    print(str_list)
+    print(string)
+    if string in str_list:
+        return [i for i, el in enumerate(str_list) if el == string][0]
+    else:
+        raise ValueError("Can't find rule '{}'! Please check the spelling \
+                          and the config file.".format(string))
+
+def input_file(wildcards):
+    if hasattr(wildcards, 'rule_name'):
+        idx = locate(BLOCK_ORDER, wildcards.rule_name)
+        if idx:
+            return os.path.join(OUTPUT_DIR, BLOCK_ORDER[idx-1],
+                                BLOCK_ORDER[idx-1]+'.'+NEO_FORMAT)
+    elif len(BLOCK_ORDER):
+        return os.path.join(OUTPUT_DIR, BLOCK_ORDER[-1],
+                            BLOCK_ORDER[-1]+'.'+NEO_FORMAT)
+    return os.path.join(STAGE_INPUT)
 
 rule all:
     input:
         check = os.path.join(OUTPUT_DIR, 'input.check'),
-        # configfile = os.path.join('configs', f'config_{PROFILE}.yaml'),
-        data = os.path.join(OUTPUT_DIR, 'merge_wave_definitions', STAGE_OUTPUT),
-        # img = os.path.join(OUTPUT_DIR, 'wave_plots')
+        data = input_file,
+        #configfile = os.path.join('configs', f'config_{PROFILE}.yaml')
     params:
         command = 'ln -s' if USE_LINK_AS_STAGE_OUTPUT else 'cp'
     output:
@@ -208,4 +243,27 @@ checkpoint plot_waves:
                               --img_name {params.img_name} \
                               --time_window {params.time_window} \
                               --colormap {params.colormap}
+        """
+
+
+rule WaveHunt_Cropped:
+    input:
+        data = STAGE_INPUT,
+        script = os.path.join('scripts', 'WaveHunt_Cropped.py'),
+    params:
+        Max_Abs_Timelag = MAX_ABS_TIMELAG,
+        Acceptable_rejection_rate = ACCEPTABLE_REJECTION_RATE,
+        min_ch_num = MIN_CH_NUM,
+
+    output:
+        data = os.path.join('{dir}', 'WaveHunt_Cropped',
+                            '{rule_name}.'+NEO_FORMAT),
+    shell:
+        """
+        {ADD_UTILS}
+        python {input.script} --data "{input.data}" \
+                              --output "{output.data}" \
+                              --min_ch_num {params.min_ch_num} \
+                              --Max_Abs_Timelag {params.Max_Abs_Timelag} \
+                              --Acceptable_rejection_rate {params.Acceptable_rejection_rate} \
         """

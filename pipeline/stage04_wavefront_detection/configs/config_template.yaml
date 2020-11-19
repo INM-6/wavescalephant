@@ -23,6 +23,11 @@ PLOT_TSTOP: 10  # in s
 PLOT_CHANNELS: 'None'  # int or None. default 'None' -> randomly selected
 PLOT_FORMAT: 'png'
 
+# DETECTION BLOCK
+#################
+# Available Blocks: 'WaveHunt_Clustering', 'WaveHunt_Time'
+DETECTION_BLOCK: WaveHunt_Clustering
+
 # Wavefront Clustering
 ######################
 # Using sklearn.cluster.DBSCAN
@@ -55,3 +60,9 @@ DETECT_CRITICAL_POINTS: False
 
 # Critical Point Clustering
 ###########################
+
+#WaveHunt_Time
+###########################
+MAX_ABS_TIMELAG: 0.8 # Maximum reasonable time lag between electrodes (pixels)...
+ACCEPTABLE_REJECTION_RATE: 0.1;
+MIN_CH_NUM: 300

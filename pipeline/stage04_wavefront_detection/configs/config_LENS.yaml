@@ -20,8 +20,13 @@ USE_LINK_AS_STAGE_OUTPUT: True
 # Plotting parameters
 PLOT_TSTART: 0  # in s
 PLOT_TSTOP: 10  # in s
-PLOT_CHANNELS: [4040, 5050, 6060]  # int or None. default 'None' -> randomly selected
+PLOT_CHANNELS: [1675, 2181, 1889]  # int or None. default 'None' -> randomly selected
 PLOT_FORMAT: 'png'
+
+# DETECTION BLOCK
+#################
+# Available Blocks: 'WaveHunt_Clustering', 'WaveHunt_Time'
+DETECTION_BLOCK: WaveHunt_Time
 
 # Tigger Filter
 ###############
@@ -63,3 +68,9 @@ DETECT_CRITICAL_POINTS: True
 
 # Critical Point Clustering
 ###########################
+
+#WaveHunt_Time
+###########################
+MAX_ABS_TIMELAG: 0.8 # Maximum reasonable time lag between electrodes (pixels)...
+ACCEPTABLE_REJECTION_RATE: 0.1;
+MIN_CH_NUM: 300

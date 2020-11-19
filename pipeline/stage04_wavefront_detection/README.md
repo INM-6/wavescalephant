@@ -33,3 +33,4 @@ Input signals and transition event + wavefronts as collections of transitions ti
 |__clustering__|groups trigger events by spatial and temporal distance|`METRIC`, `NEIGHBOUR_DISTANCE`, `MIN_SAMPLES_PER_WAVE`, `TIME_SPACE_RATIO`|
 |__(optical_flow)__|calculates vector velocity field with Horn-Schunck algorithm|`ALPHA`, `MAX_NITER`, `CONVERGENCE_LIMIT`, `GAUSSIAN_SIGMA`, `DERIVATIVE_FILTER`|
 |__(critical_points)__|..|..|
+|__WaveHunt_Cropped__|groups trigger events by unicity and globallity principles|`OPTIMAL_MAX_ABS_TIMELAG`, `ACCEPTABLE_REJECTION_RATE`, `MIN_CH_NUM`|
